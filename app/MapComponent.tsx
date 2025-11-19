@@ -21,8 +21,11 @@ const MapComponent = ({ stops, currentStop }: MapComponentProps) => {
   const markersRef = useRef<L.Marker[]>([]);
   const polylineRef = useRef<L.Polyline | null>(null);
   const initializedRef = useRef(false);
+  const initialBoundsRef = useRef<L.LatLngBounds | null>(null);
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+
     if (mapRef.current && !mapInstanceRef.current && !initializedRef.current) {
       initializedRef.current = true;
 
@@ -112,6 +115,7 @@ const MapComponent = ({ stops, currentStop }: MapComponentProps) => {
 
       // Fit bounds to show entire route with padding
       const bounds = L.latLngBounds(routeCoords);
+      initialBoundsRef.current = bounds;
       map.fitBounds(bounds, {
         padding: [50, 50],
         maxZoom: 14,
@@ -127,12 +131,10 @@ const MapComponent = ({ stops, currentStop }: MapComponentProps) => {
     }
   }, [stops]);
 
-  // Handle current stop changes with smooth animation
+  // Handle current stop changes with smooth animation (NO AUTO-ZOOM)
   useEffect(() => {
     if (mapInstanceRef.current && markersRef.current[currentStop]) {
-      const map = mapInstanceRef.current;
       const marker = markersRef.current[currentStop];
-      const stop = stops[currentStop];
 
       // Update marker appearance for current stop
       markersRef.current.forEach((m, idx) => {
@@ -161,12 +163,18 @@ const MapComponent = ({ stops, currentStop }: MapComponentProps) => {
           }px rgba(0,0,0,0.4); border: ${
             isCurrent ? '4px' : isStartEnd ? '3px' : '2px'
           } solid white; transition: all 0.3s ease; ${
-            isCurrent ? 'animation: pulse 2s infinite;' : ''
+            isCurrent
+              ? 'box-shadow: 0 0 0 0 rgba(236, 72, 153, 0.7); animation: borderPulse 2s infinite;'
+              : ''
           }">${isStartEnd ? (idx === 0 ? '🏁' : '🏆') : idx + 1}</div>
           <style>
-          @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
+          @keyframes borderPulse {
+            0%, 100% { 
+              box-shadow: 0 0 0 0 rgba(236, 72, 153, 0.7), 0 4px 15px rgba(0,0,0,0.4);
+            }
+            50% { 
+              box-shadow: 0 0 0 8px rgba(236, 72, 153, 0), 0 4px 15px rgba(0,0,0,0.4);
+            }
           }
           </style>`,
           iconSize: [
@@ -178,17 +186,8 @@ const MapComponent = ({ stops, currentStop }: MapComponentProps) => {
         m.setIcon(icon);
       });
 
-      // Smooth flyTo animation
-      map.flyTo([stop.lat, stop.lng], 15, {
-        animate: true,
-        duration: 1.5, // Smooth animation duration
-        easeLinearity: 0.25,
-      });
-
-      // Open popup after animation completes
-      setTimeout(() => {
-        marker.openPopup();
-      }, 1600);
+      // Just open the popup, DON'T move the map
+      marker.openPopup();
     }
   }, [currentStop, stops]);
 
@@ -204,17 +203,59 @@ const MapComponent = ({ stops, currentStop }: MapComponentProps) => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  const resetZoom = () => {
+    if (mapInstanceRef.current && initialBoundsRef.current) {
+      mapInstanceRef.current.fitBounds(initialBoundsRef.current, {
+        padding: [50, 50],
+        maxZoom: 14,
+        animate: true,
+        duration: 0.5,
+      });
+    }
+  };
+
   return (
-    <div
-      ref={mapRef}
-      style={{
-        height: '100%',
-        width: '100%',
-        borderRadius: '12px',
-        overflow: 'hidden',
-        position: 'relative',
-      }}
-    ></div>
+    <div style={{ height: '100%', width: '100%', position: 'relative' }}>
+      <button
+        onClick={resetZoom}
+        style={{
+          position: 'absolute',
+          top: '10px',
+          right: '10px',
+          zIndex: 1000,
+          padding: '8px 12px',
+          borderRadius: '6px',
+          background: 'rgba(139, 92, 246, 0.9)',
+          color: 'white',
+          border: 'none',
+          cursor: 'pointer',
+          fontWeight: 600,
+          fontSize: '12px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+          transition: 'all 0.2s ease',
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.background = 'rgba(139, 92, 246, 1)';
+          e.currentTarget.style.transform = 'scale(1.05)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = 'rgba(139, 92, 246, 0.9)';
+          e.currentTarget.style.transform = 'scale(1)';
+        }}
+      >
+        🔄 Reset Zoom
+      </button>
+      <div
+        ref={mapRef}
+        style={{
+          height: '100%',
+          width: '100%',
+          borderRadius: '12px',
+          overflow: 'hidden',
+          position: 'relative',
+        }}
+      ></div>
+    </div>
   );
 };
 

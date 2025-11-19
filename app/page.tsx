@@ -3,7 +3,25 @@
 import React, { useState, useEffect, useRef } from 'react';
 import dynamic from 'next/dynamic';
 
-const MapComponent = dynamic(() => import('./MapComponent'), { ssr: false });
+const MapComponent = dynamic(() => import('./MapComponent'), {
+  ssr: false,
+  loading: () => (
+    <div
+      style={{
+        height: '100%',
+        width: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'rgba(30, 27, 75, 0.6)',
+        borderRadius: '12px',
+        color: '#94a3b8',
+      }}
+    >
+      Loading map...
+    </div>
+  ),
+});
 
 interface Stop {
   name: string;
@@ -23,11 +41,22 @@ const RoadMarchApp = () => {
   );
   const [isMapExpanded, setIsMapExpanded] = useState(false);
   const [isMapFullscreen, setIsMapFullscreen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
   const [hasEnded, setHasEnded] = useState(false);
 
   const marchStartTimeRef = useRef<number | null>(null);
   const locationStartTimeRef = useRef<number | null>(null);
+
+  // Detect if mobile on client side only
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const stops: Stop[] = [
     {
@@ -163,13 +192,7 @@ const RoadMarchApp = () => {
   };
 
   const toggleMapExpand = () => {
-    if (window.innerWidth < 768) {
-      // Mobile: toggle fullscreen
-      setIsMapFullscreen(!isMapFullscreen);
-    } else {
-      // Desktop: toggle fullscreen
-      setIsMapFullscreen(!isMapFullscreen);
-    }
+    setIsMapFullscreen(!isMapFullscreen);
   };
 
   return (
@@ -648,11 +671,11 @@ const RoadMarchApp = () => {
               >
                 {isMapFullscreen
                   ? '✕ Close'
-                  : window.innerWidth >= 768
-                  ? '⛶ Fullscreen'
-                  : isMapExpanded
-                  ? '↓ Collapse'
-                  : '↑ Expand'}
+                  : isMobile
+                  ? isMapExpanded
+                    ? '↓ Collapse'
+                    : '↑ Expand'
+                  : '⛶ Fullscreen'}
               </button>
             </div>
             <div
