@@ -22,6 +22,7 @@ const RoadMarchApp = () => {
     {}
   );
   const [isMapExpanded, setIsMapExpanded] = useState(false);
+  const [isMapFullscreen, setIsMapFullscreen] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
   const [hasEnded, setHasEnded] = useState(false);
 
@@ -134,7 +135,6 @@ const RoadMarchApp = () => {
       }));
 
       if (currentStop === stops.length - 2) {
-        // Moving to the last stop - end the journey
         setCurrentStop(currentStop + 1);
         setHasEnded(true);
         const finalTimeSpent = Math.floor(
@@ -163,7 +163,13 @@ const RoadMarchApp = () => {
   };
 
   const toggleMapExpand = () => {
-    setIsMapExpanded(!isMapExpanded);
+    if (window.innerWidth < 768) {
+      // Mobile: toggle fullscreen
+      setIsMapFullscreen(!isMapFullscreen);
+    } else {
+      // Desktop: toggle fullscreen
+      setIsMapFullscreen(!isMapFullscreen);
+    }
   };
 
   return (
@@ -218,6 +224,23 @@ const RoadMarchApp = () => {
           background-size: 1000px 100%;
           animation: shimmer 3s linear infinite;
         }
+        .fullscreen-map {
+          position: fixed !important;
+          top: 0 !important;
+          left: 0 !important;
+          right: 0 !important;
+          bottom: 0 !important;
+          width: 100vw !important;
+          height: 100vh !important;
+          z-index: 9999 !important;
+          margin: 0 !important;
+          border-radius: 0 !important;
+          padding: 0 !important;
+        }
+        .fullscreen-map-content {
+          width: 100% !important;
+          height: 100% !important;
+        }
         @media (min-width: 768px) {
           .desktop-layout {
             grid-template-columns: 1fr 1fr !important;
@@ -232,16 +255,16 @@ const RoadMarchApp = () => {
         @media (max-width: 767px) {
           .map-container-mobile {
             position: sticky !important;
-            top: 90px !important;
+            top: 65px !important;
             z-index: 50 !important;
             transition: height 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
             will-change: height !important;
           }
           .map-container-mobile.expanded {
-            height: 500px !important;
+            height: 400px !important;
           }
           .map-container-mobile:not(.expanded) {
-            height: 250px !important;
+            height: 200px !important;
           }
         }
         .checkpoint-list {
@@ -262,21 +285,20 @@ const RoadMarchApp = () => {
         }}
       >
         <div
-          style={{ maxWidth: '1400px', margin: '0 auto', padding: '12px 20px' }}
+          style={{ maxWidth: '1400px', margin: '0 auto', padding: '8px 16px' }}
         >
           <div
             style={{
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              flexWrap: 'wrap',
-              gap: '12px',
+              gap: '10px',
             }}
           >
-            <div>
+            <div style={{ flex: 1, minWidth: '150px' }}>
               <h1
                 style={{
-                  fontSize: '20px',
+                  fontSize: '13px',
                   fontWeight: 800,
                   background: 'linear-gradient(135deg, #8b5cf6, #ec4899)',
                   WebkitBackgroundClip: 'text',
@@ -284,56 +306,55 @@ const RoadMarchApp = () => {
                   backgroundClip: 'text',
                   margin: 0,
                   lineHeight: 1.2,
-                  letterSpacing: '-0.5px',
+                  letterSpacing: '-0.3px',
                 }}
               >
-                Night of Bliss with Pastor Chris
+                Night of Bliss
               </h1>
               <p
                 style={{
-                  fontSize: '12px',
+                  fontSize: '9px',
                   color: '#94a3b8',
-                  margin: '4px 0 0 0',
+                  margin: '2px 0 0 0',
                 }}
               >
-                Current Date • {currentDate} • {currentTime}
+                {currentDate} • {currentTime}
               </p>
             </div>
 
             <div
               style={{
                 display: 'flex',
-                gap: '10px',
+                gap: '5px',
                 alignItems: 'center',
-                flexWrap: 'wrap',
               }}
             >
               <div
                 style={{
                   textAlign: 'center',
-                  padding: '8px 16px',
+                  padding: '3px 6px',
                   background: 'rgba(139, 92, 246, 0.1)',
-                  borderRadius: '12px',
+                  borderRadius: '6px',
                   border: '1px solid rgba(139, 92, 246, 0.3)',
                 }}
               >
                 <div
                   style={{
-                    fontSize: '10px',
+                    fontSize: '7px',
                     color: '#94a3b8',
                     textTransform: 'uppercase',
                     fontWeight: 600,
-                    letterSpacing: '0.5px',
+                    letterSpacing: '0.3px',
                   }}
                 >
                   Progress
                 </div>
                 <div
                   style={{
-                    fontSize: '18px',
+                    fontSize: '11px',
                     fontWeight: 800,
                     color: '#8b5cf6',
-                    marginTop: '2px',
+                    marginTop: '1px',
                   }}
                 >
                   {currentStop + 1}/{stops.length}
@@ -342,30 +363,30 @@ const RoadMarchApp = () => {
               <div
                 style={{
                   textAlign: 'center',
-                  padding: '8px 16px',
+                  padding: '3px 6px',
                   background: 'rgba(236, 72, 153, 0.1)',
-                  borderRadius: '12px',
+                  borderRadius: '6px',
                   border: '1px solid rgba(236, 72, 153, 0.3)',
                 }}
               >
                 <div
                   style={{
-                    fontSize: '10px',
+                    fontSize: '7px',
                     color: '#94a3b8',
                     textTransform: 'uppercase',
                     fontWeight: 600,
-                    letterSpacing: '0.5px',
+                    letterSpacing: '0.3px',
                   }}
                 >
-                  Total Time
+                  Total
                 </div>
                 <div
                   style={{
-                    fontSize: '18px',
+                    fontSize: '11px',
                     fontWeight: 800,
                     color: '#ec4899',
                     fontFamily: 'monospace',
-                    marginTop: '2px',
+                    marginTop: '1px',
                   }}
                 >
                   {formatTime(totalDuration)}
@@ -374,30 +395,30 @@ const RoadMarchApp = () => {
               <div
                 style={{
                   textAlign: 'center',
-                  padding: '8px 16px',
+                  padding: '3px 6px',
                   background: 'rgba(59, 130, 246, 0.1)',
-                  borderRadius: '12px',
+                  borderRadius: '6px',
                   border: '1px solid rgba(59, 130, 246, 0.3)',
                 }}
               >
                 <div
                   style={{
-                    fontSize: '10px',
+                    fontSize: '7px',
                     color: '#94a3b8',
                     textTransform: 'uppercase',
                     fontWeight: 600,
-                    letterSpacing: '0.5px',
+                    letterSpacing: '0.3px',
                   }}
                 >
                   Location
                 </div>
                 <div
                   style={{
-                    fontSize: '18px',
+                    fontSize: '11px',
                     fontWeight: 800,
                     color: '#3b82f6',
                     fontFamily: 'monospace',
-                    marginTop: '2px',
+                    marginTop: '1px',
                   }}
                 >
                   {formatTime(locationDuration)}
@@ -407,6 +428,164 @@ const RoadMarchApp = () => {
           </div>
         </div>
       </div>
+
+      {/* Fullscreen Map Overlay */}
+      {isMapFullscreen && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            width: '100vw',
+            height: '100vh',
+            zIndex: 99999,
+            background: '#0f172a',
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
+          <div
+            style={{
+              padding: '12px 16px',
+              background: 'rgba(15, 23, 42, 0.98)',
+              backdropFilter: 'blur(12px)',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              borderBottom: '2px solid rgba(139, 92, 246, 0.4)',
+              flexShrink: 0,
+            }}
+          >
+            <h2
+              style={{
+                fontSize: '16px',
+                fontWeight: 700,
+                color: '#e2e8f0',
+                margin: 0,
+              }}
+            >
+              🗺️ Full Route Map
+            </h2>
+            <button
+              onClick={toggleMapExpand}
+              style={{
+                padding: '8px 16px',
+                borderRadius: '8px',
+                background: 'rgba(239, 68, 68, 0.2)',
+                color: '#fff',
+                fontSize: '12px',
+                fontWeight: 700,
+                cursor: 'pointer',
+                border: '2px solid rgba(239, 68, 68, 0.5)',
+                transition: 'all 0.3s ease',
+              }}
+            >
+              ✕ Close
+            </button>
+          </div>
+          <div style={{ flex: 1, width: '100%', overflow: 'hidden' }}>
+            <MapComponent stops={stops} currentStop={currentStop} />
+          </div>
+
+          {/* Condensed Controls for Fullscreen */}
+          <div
+            style={{
+              background: 'rgba(15, 23, 42, 0.98)',
+              backdropFilter: 'blur(12px)',
+              padding: '8px 16px',
+              borderTop: '1px solid rgba(139, 92, 246, 0.3)',
+              flexShrink: 0,
+            }}
+          >
+            <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: '1fr 1fr 50px',
+                  gap: '8px',
+                  alignItems: 'center',
+                }}
+              >
+                <button
+                  onClick={previousStop}
+                  disabled={currentStop <= 1 || !hasStarted || hasEnded}
+                  style={{
+                    padding: '8px',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontWeight: 700,
+                    fontSize: '11px',
+                    cursor:
+                      currentStop <= 1 || !hasStarted || hasEnded
+                        ? 'not-allowed'
+                        : 'pointer',
+                    textTransform: 'uppercase',
+                    background:
+                      currentStop <= 1 || !hasStarted || hasEnded
+                        ? 'rgba(71, 85, 105, 0.3)'
+                        : 'linear-gradient(135deg, #475569, #334155)',
+                    color:
+                      currentStop <= 1 || !hasStarted || hasEnded
+                        ? '#64748b'
+                        : 'white',
+                    letterSpacing: '0.3px',
+                    transition: 'all 0.3s ease',
+                  }}
+                >
+                  ◀ Prev
+                </button>
+                <button
+                  onClick={!hasStarted ? startJourney : nextStop}
+                  disabled={hasEnded}
+                  style={{
+                    padding: '8px',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontWeight: 700,
+                    fontSize: '11px',
+                    cursor: hasEnded ? 'not-allowed' : 'pointer',
+                    textTransform: 'uppercase',
+                    background: hasEnded
+                      ? 'rgba(71, 85, 105, 0.3)'
+                      : !hasStarted
+                      ? 'linear-gradient(135deg, #10b981, #059669)'
+                      : currentStop === stops.length - 2
+                      ? 'linear-gradient(135deg, #ef4444, #dc2626)'
+                      : 'linear-gradient(135deg, #8b5cf6, #ec4899)',
+                    color: hasEnded ? '#64748b' : 'white',
+                    letterSpacing: '0.3px',
+                    transition: 'all 0.3s ease',
+                  }}
+                >
+                  {!hasStarted
+                    ? 'Start'
+                    : currentStop === stops.length - 2
+                    ? '🏁 End'
+                    : 'Next ▶'}
+                </button>
+                <button
+                  onClick={resetProgress}
+                  style={{
+                    padding: '8px',
+                    borderRadius: '8px',
+                    fontWeight: 700,
+                    fontSize: '7px',
+                    cursor: 'pointer',
+                    background: 'rgba(30, 41, 59, 0.6)',
+                    color: '#94a3b8',
+                    transition: 'all 0.3s ease',
+                    border: '1px solid rgba(71, 85, 105, 0.3)',
+                  }}
+                >
+                  🔄
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Main Content Area */}
       <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '20px' }}>
@@ -442,32 +621,38 @@ const RoadMarchApp = () => {
             >
               <h2
                 style={{
-                  fontSize: '16px',
+                  fontSize: '14px',
                   fontWeight: 700,
                   color: '#e2e8f0',
                   margin: 0,
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '8px',
+                  gap: '6px',
                 }}
               >
-                <span style={{ fontSize: '20px' }}>🗺️</span> Live Route Map
+                <span style={{ fontSize: '16px' }}>🗺️</span> Live Route
               </h2>
               <button
                 onClick={toggleMapExpand}
                 style={{
-                  padding: '8px 16px',
+                  padding: '6px 12px',
                   borderRadius: '8px',
                   background: 'rgba(139, 92, 246, 0.2)',
                   color: '#e2e8f0',
-                  fontSize: '12px',
+                  fontSize: '11px',
                   fontWeight: 600,
                   cursor: 'pointer',
                   transition: 'all 0.3s ease',
                   border: '1px solid rgba(139, 92, 246, 0.3)',
                 }}
               >
-                {isMapExpanded ? '↓ Collapse' : '↑ Expand'}
+                {isMapFullscreen
+                  ? '✕ Close'
+                  : window.innerWidth >= 768
+                  ? '⛶ Fullscreen'
+                  : isMapExpanded
+                  ? '↓ Collapse'
+                  : '↑ Expand'}
               </button>
             </div>
             <div
@@ -494,16 +679,16 @@ const RoadMarchApp = () => {
           >
             <h2
               style={{
-                fontSize: '16px',
+                fontSize: '14px',
                 fontWeight: 700,
                 color: '#e2e8f0',
                 marginBottom: '16px',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px',
+                gap: '6px',
               }}
             >
-              <span style={{ fontSize: '20px' }}>📍</span> Route Checkpoints
+              <span style={{ fontSize: '16px' }}>📍</span> Checkpoints
             </h2>
             <div
               className="checkpoint-list"
@@ -529,7 +714,7 @@ const RoadMarchApp = () => {
                     style={{
                       display: 'flex',
                       alignItems: 'flex-start',
-                      marginBottom: '16px',
+                      marginBottom: '14px',
                       position: 'relative',
                     }}
                   >
@@ -537,10 +722,10 @@ const RoadMarchApp = () => {
                       <div
                         style={{
                           position: 'absolute',
-                          left: '18px',
-                          top: '40px',
-                          width: '3px',
-                          height: 'calc(100% + 8px)',
+                          left: '16px',
+                          top: '36px',
+                          width: '2px',
+                          height: 'calc(100% + 6px)',
                           background:
                             status === 'completed'
                               ? 'linear-gradient(180deg, #10b981, rgba(16, 185, 129, 0.3))'
@@ -551,14 +736,14 @@ const RoadMarchApp = () => {
                     <div
                       className={status === 'current' ? 'pulse-animation' : ''}
                       style={{
-                        minWidth: '36px',
-                        height: '36px',
+                        minWidth: '32px',
+                        height: '32px',
                         borderRadius: '50%',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         fontWeight: 800,
-                        fontSize: isStartEnd ? '11px' : '14px',
+                        fontSize: isStartEnd ? '10px' : '13px',
                         flexShrink: 0,
                         position: 'relative',
                         zIndex: 2,
@@ -577,7 +762,7 @@ const RoadMarchApp = () => {
                             : 'none',
                         border:
                           status === 'current'
-                            ? '3px solid rgba(139, 92, 246, 0.5)'
+                            ? '2px solid rgba(139, 92, 246, 0.5)'
                             : 'none',
                       }}
                     >
@@ -592,13 +777,13 @@ const RoadMarchApp = () => {
                     <div
                       style={{
                         flex: 1,
-                        marginLeft: '14px',
+                        marginLeft: '12px',
                         background:
                           status === 'current'
                             ? 'rgba(139, 92, 246, 0.15)'
                             : 'rgba(30, 41, 59, 0.4)',
-                        padding: '12px 16px',
-                        borderRadius: '12px',
+                        padding: '10px 12px',
+                        borderRadius: '10px',
                         border:
                           status === 'current'
                             ? '2px solid rgba(139, 92, 246, 0.5)'
@@ -611,8 +796,8 @@ const RoadMarchApp = () => {
                         style={{
                           fontWeight: 700,
                           color: '#e2e8f0',
-                          fontSize: '14px',
-                          marginBottom: '6px',
+                          fontSize: '13px',
+                          marginBottom: '4px',
                         }}
                       >
                         {stop.name}
@@ -620,8 +805,8 @@ const RoadMarchApp = () => {
                       <div
                         style={{
                           display: 'flex',
-                          gap: '6px',
-                          marginTop: '6px',
+                          gap: '5px',
+                          marginTop: '5px',
                           flexWrap: 'wrap',
                           alignItems: 'center',
                         }}
@@ -629,9 +814,9 @@ const RoadMarchApp = () => {
                         {isStartEnd && (
                           <span
                             style={{
-                              fontSize: '10px',
-                              padding: '4px 10px',
-                              borderRadius: '8px',
+                              fontSize: '9px',
+                              padding: '3px 8px',
+                              borderRadius: '6px',
                               fontWeight: 700,
                               background:
                                 index === 0
@@ -639,46 +824,46 @@ const RoadMarchApp = () => {
                                   : 'linear-gradient(135deg, #3b82f6, #2563eb)',
                               color: 'white',
                               textTransform: 'uppercase',
-                              letterSpacing: '0.5px',
+                              letterSpacing: '0.3px',
                               boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
                             }}
                           >
-                            {index === 0 ? '🏁 Start Point' : '🏆 End Point'}
+                            {index === 0 ? '🏁 Start' : '🏆 End'}
                           </span>
                         )}
                         {status === 'current' && (
                           <span
                             style={{
-                              fontSize: '10px',
-                              padding: '4px 10px',
-                              borderRadius: '8px',
+                              fontSize: '9px',
+                              padding: '3px 8px',
+                              borderRadius: '6px',
                               fontWeight: 700,
                               background:
                                 'linear-gradient(135deg, #8b5cf6, #ec4899)',
                               color: 'white',
                               textTransform: 'uppercase',
-                              letterSpacing: '0.5px',
+                              letterSpacing: '0.3px',
                               boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
                             }}
                           >
-                            📍 Current Location
+                            📍 Current
                           </span>
                         )}
                       </div>
                       {locationTimes[index] && (
                         <div
                           style={{
-                            fontSize: '11px',
+                            fontSize: '10px',
                             color: '#94a3b8',
-                            marginTop: '8px',
+                            marginTop: '6px',
                             fontFamily: 'monospace',
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '6px',
+                            gap: '5px',
                             fontWeight: 600,
                           }}
                         >
-                          ⏱️ Duration: {locationTimes[index]}
+                          ⏱️ {locationTimes[index]}
                         </div>
                       )}
                     </div>
@@ -699,7 +884,7 @@ const RoadMarchApp = () => {
           right: 0,
           background: 'rgba(15, 23, 42, 0.98)',
           backdropFilter: 'blur(12px)',
-          padding: '16px 20px',
+          padding: '12px 16px',
           boxShadow: '0 -4px 24px rgba(0, 0, 0, 0.5)',
           zIndex: 101,
           borderTop: '1px solid rgba(139, 92, 246, 0.3)',
@@ -709,19 +894,19 @@ const RoadMarchApp = () => {
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: '1fr 1fr 70px',
-              gap: '12px',
+              gridTemplateColumns: '1fr 1fr 60px',
+              gap: '10px',
             }}
           >
             <button
               onClick={previousStop}
               disabled={currentStop <= 1 || !hasStarted || hasEnded}
               style={{
-                padding: '14px',
+                padding: '12px',
                 border: 'none',
-                borderRadius: '12px',
+                borderRadius: '10px',
                 fontWeight: 800,
-                fontSize: '14px',
+                fontSize: '12px',
                 cursor:
                   currentStop <= 1 || !hasStarted || hasEnded
                     ? 'not-allowed'
@@ -749,11 +934,11 @@ const RoadMarchApp = () => {
               onClick={!hasStarted ? startJourney : nextStop}
               disabled={hasEnded}
               style={{
-                padding: '14px',
+                padding: '12px',
                 border: 'none',
-                borderRadius: '12px',
+                borderRadius: '10px',
                 fontWeight: 800,
-                fontSize: '14px',
+                fontSize: '12px',
                 cursor: hasEnded ? 'not-allowed' : 'pointer',
                 textTransform: 'uppercase',
                 background: hasEnded
@@ -778,14 +963,14 @@ const RoadMarchApp = () => {
               {!hasStarted
                 ? 'Start'
                 : currentStop === stops.length - 2
-                ? '🏁 End Journey'
+                ? '🏁 End'
                 : 'Next ▶'}
             </button>
             <button
               onClick={resetProgress}
               style={{
-                padding: '14px',
-                borderRadius: '12px',
+                padding: '12px',
+                borderRadius: '10px',
                 fontWeight: 800,
                 fontSize: '8px',
                 cursor: 'pointer',
